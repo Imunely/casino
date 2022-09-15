@@ -1,0 +1,97 @@
+limit_conn_zone $binary_remote_addr zone=perip:10m;
+
+limit_conn_zone $server_name zone=perserver:10m;
+
+server {
+
+	limit_conn perip 10;
+
+	limit_conn perserver 100;
+
+# Log files for Debugging
+
+	access_log /var/log/nginx/laravel-access.log;
+
+	error_log /var/log/nginx/laravel-error.log;
+
+# Webroot Directory for Laravel project
+
+	root /Users/emmanyel/Webserver/dmitry/kazino/public;
+
+	index index.php index.html index.htm;
+
+# Your Domain Name
+
+server_name kazino.loc; # Тут изменяем на свой домен
+
+	location / {
+
+		try_files $uri $uri/ /index.php?$query_string;
+
+	}
+
+# PHP-FPM Configuration Nginx
+
+	location ~ \.php$ {
+        #    root           html;
+        fastcgi_pass   127.0.0.1:9000;
+        fastcgi_index  index.php;
+        fastcgi_param  SCRIPT_FILENAME $request_filename;
+        include        fastcgi_params;
+    }
+
+	#listen [::]:443 ssl ipv6only=on;
+
+	#listen 443 ssl;
+
+	#ssl_certificate /etc/nginx/ssl/cert.pem;
+
+	#ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+
+}
+
+server {
+
+	if ($host = kazino.loc) { # Тут изменяем на свой домен
+
+		return 301 http://$host$request_uri;
+
+	}
+
+	listen 3030;
+
+	listen [::]:3030 ipv6only=on;
+
+	erver_name kazino.loc; # Тут изменяем на свой домен
+
+	return 404;
+
+}
+
+# server {
+#         listen 3030;
+# #       listen [::]:3030;
+
+#         server_name kazino.loc;
+
+#         root /Users/emmanyel/Webserver/dmitry/kazino/public;
+
+#         location / {
+#                 index  index.html index.htm index.php;
+#         }
+
+#         #location ~ \.php$ {
+#         #    fastcgi_pass   127.0.0.1:9000;
+#         #    fastcgi_index  index.php;
+#         #    fastcgi_param  SCRIPT_FILENAME $document_root;
+#         #    include        fastcgi_params;
+#         #}
+
+#         location ~ \.php$ {
+#         #    root           html;
+#             fastcgi_pass   127.0.0.1:9000;
+#             fastcgi_index  index.php;
+#             fastcgi_param  SCRIPT_FILENAME $request_filename;
+#             include        fastcgi_params;
+#         }
+# }
